@@ -18,6 +18,7 @@ var rainIntervalId;
 
 var capMaxWater = 7;
 
+//Inicializa los arreglos para que no sean null
 function iniTableNMap(p1,p2){
 	table = new Array(p1);
 	map2 = new Array(p1);
@@ -53,6 +54,8 @@ function tableCreate(p1,p2) {
     body.appendChild(tbl)
 }
 
+//Asigna valores de forma randomica entre 1 y 0 (espacio abierto o pared) con un porcentaje de 
+//randomFillPercent
 function fillMap(){
 
 	for (var y = 0; y < tblHeight; y ++) {
@@ -69,11 +72,13 @@ function fillMap(){
     paintTable();
 }
 
+//Aplica automata celular para suavizar las cavernas
 function smoothMap(){
 	for (var x = 0; x < tblHeight ; x++) {
         for (var y = 0; y < tblWidth; y++) {
            	var neighboursCount = getWallNeighbours(y,x);
 
+            //Reglas AC
             if(neighboursCount > 4) {
             	map[x][y] = 0;
             }else if(neighboursCount < 4){ 
@@ -91,6 +96,7 @@ function smoothMap(){
     }
 }
 
+//Cuenta los vecinos que son paredes
 function getWallNeighbours(x,y){
 	var neighbours= 0;
 
@@ -108,6 +114,7 @@ function getWallNeighbours(x,y){
 	return neighbours;
 }
 
+//Crea el mapa y luego lo suaviza con AC
 function generateMap(){
 	fillMap();
 	smoothIntervalId = setInterval(smoothMap, 1000);
@@ -123,6 +130,7 @@ function airSpace(){
     paintTable();
 }
 
+//Pinta la tabla segun los valores de las celdas en map[][]
 function paintTable(){
 	for (var y = 0; y < tblHeight; y ++) {
         for (var x = 0; x < tblWidth; x ++) {
@@ -140,6 +148,7 @@ function paintTable(){
     }
 }
 
+//Funcion de prueba para pintar con colores randomicos la tabla
 function paintTableRandom(){
 	for (var y = 0; y < tblHeight; y ++) {
         for (var x = 0; x < tblWidth; x ++) {
@@ -151,22 +160,23 @@ function paintTableRandom(){
     }
 }
 
+//asigna a una celda map[][] el vlaor de agua en el AC de agua
 function water(y,x){
 	map2[y][x] = 2;
-	// table[y][x].style.backgroundColor = waterColor;
 }
 
+//asigna a una celda map[][] el vlaor de aire en el AC de agua
 function aire(y,x){
 	map2[y][x] = 1;
-	// table[y][x].style.backgroundColor = airColor;
 }
 
+// Crea en 
 function createRainDrop(){
 		var position = Math.floor(Math.random()*tblWidth);
 		map[0][position] = 7;
 }
 
-
+// Copia map a map2
 function map1ToMap2(){
 	for (var y = 0; y < tblHeight; y ++) {
         for (var x = 0; x < tblWidth; x ++) {
@@ -175,6 +185,7 @@ function map1ToMap2(){
     }
 }
 
+// Copia map2 a map
 function map2ToMap1(){
 	for (var y = 0; y < tblHeight; y ++) {
         for (var x = 0; x < tblWidth; x ++) {
@@ -183,11 +194,12 @@ function map2ToMap1(){
     }
 }
 
+// Funcion que se encarga de crear iterativamente lluvia
 function rain(){
 		console.log(rainIteration);
 		createRainDrop();
-		createRainDrop();
-		createRainDrop();
+		// createRainDrop();
+		// createRainDrop();
 		map1ToMap2();
 		automaten();
 		map2ToMap1();
@@ -199,9 +211,7 @@ function rain(){
 function entregarAguaAbajo(x1,y1,x2,y2){
 	var aguaEntregable = map[y1][x1] - 1;
     var aguaRecibible = capMaxWater - map[y2][x2] - 1;
-    // var suma = Math.min(aguaRecibible,aguaEntregable);
-    // map2[y2][x2] += suma;
-    // map2[y1][x1] -=  suma;
+
     if(aguaRecibible>aguaEntregable){
 		map2[y2][x2] += aguaEntregable;
     	map2[y1][x1] -=  aguaEntregable;
@@ -214,10 +224,8 @@ function entregarAguaAbajo(x1,y1,x2,y2){
 function entregarAguaLado(x1,y1,x2,y2){
 	var aguaEntregable = Math.min(1,Math.ceil((map[y1][x1] - 1)/2));
     var aguaRecibible = capMaxWater - map[y2][x2] - 1;
-    // var suma = Math.min(aguaRecibible,aguaEntregable);
-    // map2[y2][x2] += suma;
-    // map2[y1][x1] -=  suma;
-        if(aguaRecibible>aguaEntregable){
+
+    if(aguaRecibible>aguaEntregable){
 		map2[y2][x2] += aguaEntregable;
     	map2[y1][x1] -=  aguaEntregable;
     }else{
@@ -226,6 +234,7 @@ function entregarAguaLado(x1,y1,x2,y2){
     }
 }
 
+// Funcion que aplica las reglas del AC para el flujo de agua, esta mas o menos malo
 function automaten(){
 	for (var y = 0; y < tblHeight; y ++) {
         for (var x = 0; x < tblWidth; x ++) {
